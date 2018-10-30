@@ -1,0 +1,112 @@
+---
+title: "HW02 - Shot Charts"
+author: "Kanak Garg"
+date: "3/5/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = '../images/')
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+shot_data <- read.csv(file = "../data/shot-data.csv", stringsAsFactors = FALSE)
+```
+
+
+#Total Shots By Player
+```{r}
+dat1 <- 
+shot_data %>%
+  group_by(name) %>%
+  select(name) %>%
+  summarise(total = length(name)) %>%
+  arrange(desc(total))
+dat1
+```
+
+
+```{r}
+dat2 <- 
+shot_data %>%
+  group_by(name) %>%
+  select(name, shot_type, shot_made_flag) %>%
+  summarise(
+    total = length(name),
+    made = length(shot_made_flag[shot_made_flag == "made shot"]),
+    perc_made = made/total) %>%
+  arrange(desc(total))
+dat2
+```
+```{r}
+dat3 <- 
+shot_data %>%
+  group_by(name) %>%
+  select(name, shot_type, shot_made_flag) %>%
+  summarise(
+    total2pt = length(shot_type[shot_type=="2PT Field Goal"]),
+    made2pt = length(shot_made_flag[shot_made_flag == "made shot" & shot_type == "2PT Field Goal"]),
+    perc2pt = made2pt/total2pt) %>%
+  arrange(desc(total2pt))
+dat3
+```
+
+```{r}
+dat4 <- 
+shot_data %>%
+  group_by(name) %>%
+  select(name, shot_type, shot_made_flag) %>%
+  summarise(
+    total3pt = length(shot_type[shot_type=="3PT Field Goal"]),
+    made3pt = length(shot_made_flag[shot_made_flag == "made shot" & shot_type == "3PT Field Goal"]),
+    perc3pt = made3pt/total3pt) %>%
+  arrange(desc(total3pt))
+dat4
+```
+
+```{r}
+dat5 <- 
+shot_data %>%
+  group_by(shot_distance) %>%
+  select(shot_distance, shot_made_flag) %>%
+  summarise(
+    made_shot_prop = length(shot_made_flag[shot_made_flag == "made shot"])/n()) %>%
+  arrange(shot_distance)
+dat5
+```
+
+```{r}
+ggplot(data = dat5) + geom_point(aes(x = shot_distance, y = made_shot_prop)) +
+  ggtitle('Shot by Distance') 
+```
+
+* What do you observe?  
+There is a definite correlation between shot distance and the the proportion of shots made. As the distance increases, shot proportion follows a downward trend. There is an outlier at 51 shot distance.
+
+* Can you confirm that the shorter the distance, the more effective the shots?  
+No, as distance decreases, the shot proportion made does not necessarily increase. There are instances where shot proportion decreases as distnace decrases.
+
+* Can you guesstimate a distance threshold beyond which the chance of making a
+successful shot is basically null?  
+After 34, the shot chances are basically null.
+
+* What distances tend to have a percentage (of making a shot) of 50% or more?  
+Distances around 0, 1, 2, 12, 16, 18, 21, 30 and 51 tend to have a shot percentage of 50% or more.
+
+```{r}
+dat6 <- 
+shot_data %>%
+  group_by(name, minute, period) %>%
+  select(name, minute, period) %>%
+  summarise(
+    shots = length(minute))
+dat6
+
+ggplot(data = dat6) + aes(x = minute, y = shots, xmin = (period%%2)*24, xmax = (period%%2)*24 +12 , ymin = 0, ymax = max(shots)) + geom_rect(fill = "grey95") + geom_point( col = rgb(73,140,251, maxColorValue = 255) ) +
+  scale_x_continuous(breaks = c(12,24,36,48)) + geom_path(col = rgb(73,140,251, maxColorValue = 255)) + 
+  labs(y = "total number of shots", title = 'Total number of shots (by minute of occurrence)') +theme_minimal() + facet_wrap(~ name)
+
+```
+

@@ -1,0 +1,156 @@
+---
+title: "hw01-kanak-garg"
+author: "Kanak Garg"
+date: "2/20/2018"
+output: github_document
+---
+```{r}
+library(readr)
+library(corrplot)
+```
+
+## Data Import
+
+```{r}
+column_names <- c("symboling", "normalized_losses", "make", "fuel_type", "aspiration", "num_of_doors", "body_style", "drive_wheels", "engine_location", "wheel_base", "length", "width", "height", "curb_weight", "engine_type", "num_of_cylinders", "engine_size", "fuel_system", "bore", "stroke", "compression_ratio", "horsepower", "peak_rpm", "city_mpg", "highway_mpg", "price")
+
+column_types <- c(
+    'real', 'real', 'character', 'character', 'character', 'character', 'character', 'character', 'character', 'real', 'real', 'real', 'real', 'integer', 'character', 'character', 'integer', 'character', 'character', 'character', 'real', 'integer', 'integer', 'integer', 'integer', 'integer')
+
+data <- read.table('imports-85.data', col.names = column_names, colClasses = column_types, sep = ",", na.strings = "?")
+
+str(data)
+```
+
+
+```{r}
+column2_types <- c( col_double(), col_double(), col_character(), col_character(), col_character(), col_character(), col_character(), col_character(), col_character(), col_double(), col_double(), col_double(), col_double(), col_integer(), col_character(), col_character(), col_integer(), col_character(), col_character(), col_character(), col_double(), col_integer(), col_integer(), col_integer(), col_integer(), col_integer())
+
+data2 <- read_csv('imports-85.data', col_names = column_names, col_types = column2_types,  na = "?")
+
+str(data2)
+```
+
+##Technical Questions about Importing Data
+a. Provided the code contains a "sep" clause, the data would result in taking the first line of data and converting that into the column name values.
+
+b. When the header is set to false, instead of using the first row as the column name values, each column is given a numbered vector name, ranging from "V1" to "Vn", and all data is stored regularly.
+
+c. If given a column data type, the data will fail to read and will error out. If not given, a column data type, the columns data type will be automatically assumed to be as a "character."
+
+d. When given column types, each variable in the column is assigned to the column type and extra data is used to store the new information. It makes sense that more data is used when assigned column types rather than not.
+
+e. It keeps all the data types and the values in a matrix with all the data. Nothing changes, except for a lack of column names.
+
+##Practice Base Plotting
+
+Histogram
+```{r}
+hist(data$price, freq = TRUE, col ="grey", border = "black", main = "Histogram Of Price", xlab = "Price", ylab = "Counts", labels = TRUE, ylim = c(0, 125), xlim = c(0, 50000))
+```
+
+Almost half of the cars are priced betweeon $0 and $10000, while the other half is above $10000. The center and the mean of the histogram plot seems to lie somewhere between $10000 and $15000. This graph is heavily skewed to the right and has a large spread.
+
+
+Boxplot
+```{r}
+boxplot(data$horsepower, horizontal = TRUE, col = "grey", main = "Boxplot of Horsepower", xlab = "Horsepower", ylim = c(0, 300))
+```
+
+The boxplot is a almost symmetric, slightly right-skewed graph with its center at around a 100 horsepower and a spread at almsot 125 horespower. There are also a few outliers lying at around 200, 215, 265 and 290 horsepower.
+
+
+Barplot
+```{r}
+body_style <- sort(table(data$body_style), decreasing = TRUE)
+barplot(body_style, col = "grey",  main = "Barplot of Body Style", xlab = "Body Style", ylab = "Frequency", ylim = c(0, 100))
+```
+
+Sedans are the most popular cars, making up a large part of the body styles of the cars. Convertibles make up the least amount of the body styles.
+
+
+Star Plot
+```{r}
+turboV = data[data$aspiration == "turbo",]
+stars(turboV[ , c(10,11,12,13,26)], main = "Starplot of Turbo Cars")
+```
+
+A lot of the cars have there own positives and negatives in terms of the variables introduced in this star plot. Based on what type of car you are looking for, it is easy to see what car offers what in this star plot.
+
+##Summaries
+a. The mean price of gas cars is $12916.41 while the mean of the diesel cars is $15838.15.
+
+b. Jaguar
+
+c. Puegot is the make with the most diesel cars.
+
+d. Porsche has the highest Horsepower of 288 horsepower however there is no price associated with it so the second highest horsepower is a Jaguar with a price of $36000.
+
+e. The bottom 10th percentile of city mpg lies at or below 17 mpg.
+
+f. The top 10th percentile of highway mpg lies at or above 38 mpg.
+
+g. The average price of the bottom 10th percentile of city mpg cars $27515.70.
+
+##Technical Questions about Data Frames
+a. It will return Null as there is no data associated with that column.
+
+b. Given that MPG is the first column ins MTCars, the only code that would not compile is the mtcars[, mpg]. 
+
+c. Mpg is not initialized as a variable and thus the compiler will not know how to register mpg.
+
+d. It is possible to take a list and covert it into a column value by passing the list into the I() command inside the data frame initialization.
+
+e. Creates a list of lists for each column of the data frame.
+
+f. The functions data.frame or as.data.frame can be used to convert object abc to a data frame.
+
+##Correlations of Quantitative Variables
+
+```{r}
+qdat <- na.omit(data[,c(10,11,12,13,14,17,21,22,23,24,25,26)])
+M <- cor(qdat)
+```
+```{r}
+corrplot(M, type = "upper", method = "color")
+```
+
+```{r}
+corrplot(M, type = "lower", method = "pie")
+```
+
+With a ton of variables and a many variable types, correlative data structures are important to see which vairables affect which in what way. Through this plot, we can see the strongest correlation lies between engine size and price as well as curb weight and length/width. The variables least associated are horsepower and city/highway mpg.
+
+##PCA
+
+RUN PCA
+
+```{r}
+pc <- prcomp(qdat, scale. = TRUE)
+```
+
+```{r}
+eigenvalues <- pc$sdev^2
+
+data.frame("Eigenvalue" = eigenvalues, "percentage" = eigenvalues/sum(eigenvalues)*100, "cumulative.percentage" = cumsum(eigenvalues/sum(eigenvalues)*100))
+```
+
+The variation in the first three components makes a majority of the proportion of variation in the entire data. To be specific, the first three components make up 85.47033% of variation.
+
+
+PCA Plot Of Vehicles, and PCA Plot of Variables
+```{r}
+x <- as.data.frame(pc$x)
+plot(x$PC1, x$PC2, main = "Scatter Plot of Components", xlab = "PC1", ylab = "PC2", xlim = c(-10,10), ylim = c(-5,5))
+```
+
+```{r}
+rotations <- as.data.frame(pc$rotation)
+plot(rotations$PC1, rotations$PC2, main = "Scatter Plot of Loadings", xlab = "Loading 1", ylab = "Loading 2", xlim = c(-0.4, 0.4), ylim = c(-0.6, 0.6) )
+```
+
+```{r}
+biplot(prcomp(qdat, scale. = TRUE))
+```
+
+Through these plots we can see a lot of variation in components and almost a circular pattern in the scatter of loadings. 

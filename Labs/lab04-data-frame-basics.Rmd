@@ -1,0 +1,303 @@
+---
+title: "Lab 4: Data Frame Basics"
+subtitle: "Stat 133, Spring 2018"
+author: "Kanak Garg"
+output: github_document
+urlcolor: blue
+---
+## Abalone Data Set
+
+```{r}
+url <- "http://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data"
+abalone <- read.table(url, sep = ",")
+```
+
+## Basic Importing
+
+```{r}
+abalone <- read.table("abalone.data", sep = ",")
+```
+
+
+```{r}
+head(abalone)
+
+tail(abalone)
+```
+
+```{r}
+str(abalone, vec.len = 1)
+```
+
+
+### Detailed information about the columns 
+
+
+```{r}
+
+column_names <- c(
+	'sex',
+	'length',
+	'diameter',
+	'height',
+	'whole_weight',
+	'shucked_weight',
+	'viscera_weight',
+	'shell_weight',
+	'rings'
+)
+
+column_types <- c(
+	'character',
+	'real',
+	'real',
+	'real',
+	'real',
+	'real',
+	'real',
+	'real',
+	'integer'	
+)
+```
+
+
+```{r}
+abalone <- read.table(
+	'abalone.data',
+	col.names = column_names,
+	colClasses = column_types,
+	sep = ","
+)
+
+
+str(abalone, vec.len = 1)
+```
+
+
+### Your turn
+
+- Read the Abalone data with the `read.csv()` function.
+- Use the inputs `col.names` and `colClasses` to specify column names and their data types.
+- Look at the data description in the following link:
+```{r}
+read.csv("abalone.data")
+```
+```{r}
+summary(abalone)
+```
+
+## NBA Players Data
+
+```{r}
+csv <- "https://github.com/ucb-stat133/stat133-fall-2017/raw/master/data/nba2017-players.csv"
+download.file(url = csv, destfile = 'nba2017-players.csv')
+dat <- read.csv('../data/nba2017-players.csv', stringsAsFactors = FALSE)
+```
+
+-----
+
+
+### Your turn:
+
+Use bracket notation, the dollar operator, as well as concepts of 
+logical subsetting and indexing to:
+
+- Display the last 5 rows of the data.
+
+```{r}
+tail(dat)
+```
+
+
+- Display those rows associated to players having height less than 70 inches tall.
+
+```{r}
+dat1 <- dat[dat$height < 70, ]
+dat1
+```
+
+
+- Of those players that arloe centers (position `C`), display their names and salaries.
+
+```{r}
+dat2 <- dat[dat$position == 'C', c(1,9) ]
+dat2
+```
+
+- Create a data frame `durant` with Kevin Durant's information (i.e. row).
+```{r}
+durant <- data.frame(list(dat[dat$player == 'Kevin Durant', ]))
+durant
+```
+
+- Create a data frame `ucla` with the data of players from college UCLA ("University of California, Los Angeles").
+```{r}
+ucla <- data.frame(list(dat[dat$college == 'University of California, Los Angeles', ]))
+ucla
+```
+
+- Create a data frame `rookies` with those players with 0 years of experience. 
+```{r}
+rookies <- data.frame(list(dat[dat$experience == '0', ]))
+rookies
+```
+
+- Create a data frame `rookie_centers` with the data of Center rookie players. 
+```{r}
+rookie_centers <- data.frame(list(dat[dat$experience == '0' & dat$position == "C", ]))
+rookie_centers
+```
+
+
+- Create a data frame `top_players` for players with more than 50 games and more than 100 minutes played.
+
+```{r}
+top_players <- data.frame(list(dat[dat$games > 50 & dat$minutes > 100, ]))
+top_players
+```
+
+
+- What's the largest height value?
+```{r}
+max(dat$height)
+```
+
+- What's the minimum height value?
+```{r}
+min(dat$height)
+```
+
+
+- What's the overall average height?
+```{r}
+mean(dat$height)
+```
+
+
+- Who is the tallest player?
+```{r}
+dat[dat$height == max(dat$height), ]
+```
+
+
+- Who is the shortest player?
+```{r}
+dat[dat$height == min(dat$height), ]
+```
+
+- Which are the unique teams?
+```{r}
+unique(dat$team)
+```
+
+- How many different teams?
+```{r}
+length(unique(dat$team))
+```
+
+- Who is the oldest player?
+```{r}
+dat[dat$age == max(dat$age), ]
+```
+
+- What is the median salary of all players?
+```{r}
+dat[dat$salary == median(dat$salary), ]
+```
+
+- What is the median salary of the players with 10 years of experience or more?
+```{r}
+dat3 <- dat[dat$experience >= 10, ]
+median(dat3$salary)
+```
+
+- What is the median salary of Shooting Guards (SG) and Point Guards (PG)?
+```{r}
+dat4 <- dat[dat$position == "SG" | dat$position == "PG", ]
+median(dat4$salary)
+```
+
+- What is the median salary of Power Forwards (PF), 29 years or older, and 74 inches tall or less?
+```{r}
+dat5 <- dat[dat$position == "PF" & dat$age >= 29  & dat$height <= 74, ]
+median(dat5$salary)
+```
+
+- How many players scored 4 points or less?
+```{r}
+dat6 <- dat[dat$points <= 4, ]
+length(dat6$player)
+```
+
+- Who are those players who scored 4 points or less?
+```{r}
+dat6$player
+```
+
+
+- Who is the player with 0 points?
+```{r}
+dat7 <- dat[dat$points == 0, ]
+dat7$player
+```
+
+- How many players are from "University of California, Berkeley"?
+```{r}
+dat8 <- dat[dat$college == 'University of California, Berkeley', ]
+length(dat8$player)
+```
+
+
+- Are there any players from "University of Notre Dame"? If so how many and who are they?
+```{r}
+dat8 <- dat[dat$college == 'University of Notre Dame', ]
+dat8
+```
+
+- Are there any players with weight greater than 260 pounds? If so how many and who are they?
+```{r}
+dat8 <- dat[dat$weight >= 260, ]
+dat8
+```
+
+- Create a data frame `gsw` with the name, height, weight of Golden State Warriors (GSW)
+
+```{r}
+gsw <- dat[dat$team == "GSW", c(1,4,5) ]
+gsw
+```
+
+
+- Display the data in `gsw` sorted by height in increasing order (hint: see `?sort` and `?order`)
+```{r}
+gsw[order(gsw$height), ]
+```
+
+- Display the data in gsw by weight in decreasing order (hint: see `?sort` and `?order`)
+```{r}
+gsw[order(gsw$weight, decreasing = TRUE), ]
+```
+
+### Your turn
+
+- Create a data frame with the average height, average weight, and average 
+age, grouped by position
+
+```{r}
+aggregate(dat[, c("height", "weight", "age")], by = list(dat$position), FUN = mean)
+```
+- Create a data frame with the average height, average weight, and average 
+age, grouped by team
+
+```{r}
+aggregate(dat[, c("height", "weight", "age")], by = list(dat$team), FUN = mean)
+```
+- Create a data frame with the average height, average weight, and average 
+age, grouped by team and position.
+
+```{r}
+
+aggregate(dat[, c("height", "weight", "age")], by = list(dat$position, dat$team), FUN = mean)
+
+```
+

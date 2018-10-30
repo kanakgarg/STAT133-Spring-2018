@@ -1,0 +1,182 @@
+---
+title: "Lab 2: Vectors and other data structures"
+subtitle: "Stat 133, Spring 2018"
+author: "Kanak Garg"
+---
+### Getting the Data File
+```{r}
+rm(list = ls())
+rdata <- "https://github.com/ucb-stat133/stat133-fall-2017/raw/master/data/nba2017-salary-points.RData"
+download.file(url = rdata, destfile = 'nba2017-salary-points.RData')
+load('nba2017-salary-points.RData')
+```
+```{r}
+ls()
+```
+
+All the data values have the same length with 441 values None of the objects contain any null/NA values in their list. All the data objects except for "team," are all vectors. Their data types can be determined from above, whether they are a logical vector, character vector or a numeric vector. Team is a factor. 
+
+## Manipulating Vectors: Subsetting
+
+- all the even elements in `player`
+```{r}
+player[seq(2, length(player), 2)]
+```
+
+- all the odd elements in `salary`
+```{r}
+salary[seq(1, length(salary), 2)]
+```
+
+- all multiples of 5 (e.g. 5, 10, 15, etc) of `team`
+```{r}
+team[seq(5, length(team), 5)]
+```
+
+- elements in positions 10, 20, 30, 40, etc of `scored`
+```{r}
+points[seq(10, length(points), 10)]
+```
+
+- all the even elements in `team` but this time in reverse order
+```{r}
+rev(team[seq(2, length(team), 2)])
+```
+
+- players in position Center, of Warriors (GSW)
+```{r}
+player[team == "GSW" & position == "C"]
+```
+
+- players of both GSW (warriors) and LAL (lakers)
+```{r}
+player[team == "GSW" & team == "LAL"]
+```
+
+- players in positions Shooting Guard and Point Guards, of Lakers (LAL) 
+```{r}
+player[team == "LAL" & (position == "SG" | position == "PG")]
+
+```
+
+- subset Small Forwards of GSW and LAL
+```{r}
+player[team == "LAL" | team == "GSW" & position == "SF"]
+```
+
+- name of the player with largest salary
+```{r}
+player[salary == max(salary)]
+```
+
+- name of the player with smallest salary
+```{r}
+player[salary == min(salary)]
+```
+
+- name of the player with largest number of scored points
+```{r}
+player[points == max(points)]
+```
+
+- salary of the player with largest number of points
+```{r}
+salary[points == max(points)]
+```
+
+- largest salary of all Centers
+```{r}
+max(salary[position == "C"])
+```
+
+- team of the player with the largest number of scored points
+```{r}
+team[player == player[points == max(points)]]
+```
+
+- name of the player with the largest number of 3-pointers
+```{r}
+player[points3 == max(points3)]
+```
+
+
+
+## Subsetting with Character Vectors
+
+```{r}
+warriors_players <-  player[team == "GSW"]
+warriors_salary <- salary[team == "GSW"]
+warriors_points <- points[team == "GSW"]
+names(warriors_salary) <-  warriors_players
+```
+
+### Some plotting
+
+```{r}
+plot(warriors_points, warriors_salary)
+text(warriors_points, warriors_salary, labels = abbreviate(player))
+```
+
+```{r}
+log_wp <- log(warriors_points)
+log_ws <- log(warriors_salary)
+plot(log_wp, log_ws)
+text(log_wp, log_ws, labels = abbreviate(player))
+```
+
+
+
+## Recycling
+
+
+`salary` is given in dollars, but what if you need to
+obtain the salaries in millions of dollars?. Create a new vector
+`salary_millions` with the converted values in millions of dollars. 
+
+```{r}
+salary_millions <- salary/1000000
+```
+
+Take the values in `points1`, `points2`, and `points3` and figure out to create  a new vector `scored_points` that gives you the same values of `points`.
+```{r}
+scored_points = points1 + 2 * points2 + 3* points3
+```
+
+### Creating Factors
+
+```{r}
+position_fac <- factor(position)
+
+table(position_fac)
+```
+
+
+### Manipulating Factors
+- positions of Warriors
+```{r}
+position_fac[team == "GSW"]
+```
+
+- positions of players with salaries > 15 millions
+```{r}
+position_fac[salary > 15000000]
+```
+
+- frequencies (counts) of positions with salaries > 15 millions
+```{r}
+table(position_fac[salary > 15000000])
+```
+
+- relative frequencies (proportions) of 'SG' (Shooting Guards) in each team
+```{r}
+table(team[position == "SG"])/table(team[team == team])
+
+```
+
+
+### More Plots
+```{r}
+plot(warriors_points, warriors_salary, col = position_fac )
+text(warriors_points, warriors_salary)
+
+```

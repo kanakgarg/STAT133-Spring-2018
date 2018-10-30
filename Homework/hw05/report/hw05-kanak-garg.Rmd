@@ -1,0 +1,61 @@
+---
+title: "hw05-kanak-garg"
+author: "Kanak Garg"
+date: "4/27/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+
+
+```{r p1}
+library(dieroller)
+die = die()
+total6 = 0
+for( i in 1:1000){
+  sim_4 = roll(die,4)
+  total_six = sum(sim_4$rolls == die$sides[6])
+  if(total_six > 0){
+    total6 = total6 + 1
+  }
+}
+
+print(sprintf("The total number of games where they were atleast one 6 is %s", total6))
+
+print(sprintf("The relative frequency is %s", total6/1000))
+
+1 - (5/6)^4
+```
+
+## Problem 2
+
+
+```{r p2}
+
+diedie = die()
+
+total66 = 0
+for( i in 1:1000){
+  bool = FALSE
+  for(j in 1:24){
+    sim_i = roll(diedie,2)
+    total_six_2 = sum(sim_i$rolls == diedie$sides[6])
+    if(total_six_2 == 2){
+      bool = TRUE
+    }
+  }
+  if(bool ==  TRUE){
+    total66 = total66 + 1
+  }
+}
+
+print(sprintf("The total is %s", total66))
+
+print(sprintf("The relative frequency is %s", total66/1000))
+
+1-(35/36)^24
+```
